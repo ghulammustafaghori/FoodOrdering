@@ -42,5 +42,14 @@ let updateUser= async(req,res)=>{
     })
 
 }
+let deleteUser= async(req,res)=>{
+    let userId=req.params.id;
+    let deleteUser=await userModel.deleteOne({_id:userId});
+    res.send({
+        status:1,
+        message:"User deleted successfully",
+        data:deleteUser
+    })
+}
     
-module.exports={userList,insertUser,updateUser};
+module.exports={userList,insertUser,updateUser,deleteUser};
