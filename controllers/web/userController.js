@@ -23,5 +23,24 @@ let insertUser= async(req,res)=>{
         data:user
     })
 }
+
+let updateUser= async(req,res)=>{
+    let userId=req.params.id;
+    let {name,phone,email,address,orders}=req.body;
+    let updateObj={
+        name:name,
+        phone:phone,
+        email:email,
+        address:address,
+        orders:orders
+    } // updateObj is an object that contains the updated values of the user
+    let updatedUser=await userModel.updateOne({_id:userId},updateObj);
+    res.send({
+        status:1,
+        message:"User updated successfully",
+        data:updatedUser
+    })
+
+}
     
-module.exports={userList,insertUser};
+module.exports={userList,insertUser,updateUser};
