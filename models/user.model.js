@@ -20,5 +20,5 @@ const userSchema= new mongoose.Schema({
         type:Number,
     }
 })
-let userModel=mongoose.model('Users',userSchema,'Users');
+let userModel=mongoose.model('user',userSchema);
 module.exports=userModel;
