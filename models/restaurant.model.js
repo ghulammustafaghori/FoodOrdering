@@ -32,6 +32,14 @@ const restaurantSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    password:{
+        type:String,
+        require:true
+    },
+    retypePassword:{
+        type:String,
+        require:true
+    },
     type:{
         type:String,
         required:true

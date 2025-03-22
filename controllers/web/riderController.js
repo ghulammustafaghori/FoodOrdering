@@ -9,10 +9,12 @@ let riderList=async (req,res)=>{
     })
 }
 let insertRider=async(req,res)=>{
-    let {name,phone,vehicle_type,vehicle_number,ratings,availability,completed_orders,joining_date}=req.body;
+    let {name,phone,vehicle_type,password,retypePassword,vehicle_number,ratings,availability,completed_orders,joining_date}=req.body;
     let rider=new riderModel({
         name:name,
         phone:phone,
+        password:password,
+        retypePassword:retypePassword,
         vehicle_type:vehicle_type,
         vehicle_number:vehicle_number,
         ratings:ratings,
@@ -31,12 +33,14 @@ let insertRider=async(req,res)=>{
 
 let updateRider=async(req,res)=>{
     let {id}=req.params;
-    let {name,phone,vehicle_type,vehicle_number,ratings,availability,completed_orders,joining_date}=req.body;
+    let {name,phone,vehicle_type,vehicle_number,password,retypePassword,ratings,availability,completed_orders,joining_date}=req.body;
     let rider=await riderModel.updateOne({_id:id},{
         name:name,
         phone:phone,
         vehicle_type:vehicle_type,
         vehicle_number:vehicle_number,
+        password:password,
+        retypePassword:retypePassword,
         ratings:ratings,
         availability:availability,
         completed_orders:completed_orders,

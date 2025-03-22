@@ -16,6 +16,14 @@ let riderSchema= new mongoose.Schema({
         type:String,
         required:true
     },
+    password:{
+        type:String,
+        require:true
+    },
+    retypePassword:{
+        type:String,
+        require:true
+    },
     ratings:{
         type:String,
         required:true

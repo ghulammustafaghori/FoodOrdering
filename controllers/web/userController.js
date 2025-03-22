@@ -8,11 +8,13 @@ let userList= async(req,res)=>{
     })
 }
 let insertUser= async(req,res)=>{
-    let {name,phone,email,address,orders}=req.body;
+    let {name,phone,email,password,retypePassword,address,orders}=req.body;
     const user=new userModel({
         name:name,
-        phone:phone,
         email:email,
+        password:password,
+        retypePassword:retypePassword,
+        phone:phone,
         address:address,
         orders:orders
     })
@@ -26,11 +28,13 @@ let insertUser= async(req,res)=>{
 
 let updateUser= async(req,res)=>{
     let userId=req.params.id;
-    let {name,phone,email,address,orders}=req.body;
+    let {name,phone,email,password,retypePassword,address,orders}=req.body;
     let updateObj={
         name:name,
         phone:phone,
         email:email,
+        password:password,
+        retypePassword:retypePassword,
         address:address,
         orders:orders
     } // updateObj is an object that contains the updated values of the user

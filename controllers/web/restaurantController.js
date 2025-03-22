@@ -9,11 +9,13 @@ let restaurantList= async(req,res)=>{
     })
 }
 let insertRestaurant=async (req,res)=>{
-    let {image,name,phone,ratings,address,owner_name,owner_phone,owner_email,type}=req.body;
+    let {image,name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type}=req.body;
   
     const restaurant=new restaurantModel({
         image:image,
         name:name,
+        password:password,
+        retypePassword:retypePassword,
         phone:phone,
         ratings:ratings,
         address:address,
@@ -32,13 +34,15 @@ let insertRestaurant=async (req,res)=>{
 
 let restaurantUpdate=async(req,res)=>{
     let {id}=req.params;
-    let{image,name,phone,ratings,address,owner_name,owner_phone,owner_email,type}=req.body;
+    let{image,name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type}=req.body;
     const restaurant=await restaurantModel.updateOne({_id:id},{
         image:image,
         name:name,
         phone:phone,
         ratings:ratings,
         address:address,
+        password:password,
+        retypePassword:retypePassword,
         owner_name:owner_name,
         owner_phone:owner_phone,
         owner_email:owner_email,
