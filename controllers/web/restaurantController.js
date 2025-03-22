@@ -30,7 +30,39 @@ let insertRestaurant=async (req,res)=>{
     })
 }
 
+let restaurantUpdate=async(req,res)=>{
+    let {id}=req.params;
+    let{image,name,phone,ratings,address,owner_name,owner_phone,owner_email,type}=req.body;
+    const restaurant=await restaurantModel.updateOne({_id:id},{
+        image:image,
+        name:name,
+        phone:phone,
+        ratings:ratings,
+        address:address,
+        owner_name:owner_name,
+        owner_phone:owner_phone,
+        owner_email:owner_email,
+        type:type
+    })
+    res.send({
+        status:1,
+        message:"Restaurant updated successfully",
+        data:restaurant
+    })
+}
+
+
+let restaurantDelete=async(req,res)=>{
+    let {id}=req.params;
+    const restaurant=await restaurantModel.deleteOne({_id:id})
+    res.send({
+        status:1,
+        message:"Restaurant deleted successfully",
+        data:restaurant
+    })
+}
 
 
 
-module.exports={restaurantList,insertRestaurant};
+
+module.exports={restaurantList,insertRestaurant,restaurantUpdate,restaurantDelete};

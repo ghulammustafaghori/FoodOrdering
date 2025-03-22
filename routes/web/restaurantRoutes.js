@@ -1,8 +1,10 @@
 const express=require('express');
-const { restaurantList, insertRestaurant } = require('../../controllers/web/restaurantController');
+const { restaurantList, insertRestaurant, restaurantUpdate, restaurantDelete } = require('../../controllers/web/restaurantController');
 const restaurantRoutes=express.Router();
 
 restaurantRoutes.get('/restaurant-list',restaurantList);
 restaurantRoutes.post('/insert-restaurant',insertRestaurant);
+restaurantRoutes.put('/update-restaurant/:id',restaurantUpdate);
+restaurantRoutes.delete('/delete-restaurant/:id',restaurantDelete);
 
 module.exports=restaurantRoutes;
