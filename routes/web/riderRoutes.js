@@ -12,4 +12,4 @@ riderRoutes.delete('/delete-rider/:id',deleteRider)
 
 
 
-module.exports=riderRoutes
+module.exports=riderRoutes;

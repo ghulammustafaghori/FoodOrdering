@@ -7,6 +7,7 @@ const { userList } = require('./controllers/web/userController');
 const userRoutes = require('./routes/web/userRoutes');
 const restaurantRoutes = require('./routes/web/restaurantRoutes');
 const riderRoutes = require('./routes/web/riderRoutes');
+const cors=require('cors');
 mongoose.connect(process.env.DB_URL,{
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -14,6 +15,11 @@ mongoose.connect(process.env.DB_URL,{
 }).then(()=>{
     console.log("DB Connected");
 })
+app.use(cors({
+    origin: "http://localhost:3000", // Allow frontend to access API
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 
 

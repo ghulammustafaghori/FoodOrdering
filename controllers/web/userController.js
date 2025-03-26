@@ -1,4 +1,5 @@
 const userModel = require('../../models/user.model');
+const axios=require('axios');
 let userList= async(req,res)=>{
     const users=await userModel.find();
     res.send({
@@ -9,6 +10,18 @@ let userList= async(req,res)=>{
 }
 let insertUser= async(req,res)=>{
     let {name,phone,email,password,retypePassword,address,orders}=req.body;
+    // let locationData=await axios.get('https://maps.googleapis.com/maps/api/geocode/json',{
+    //     params: {address:address,key:process.env.GOOGLE_MAPS_API_KEY}
+    // })
+    
+    // let location = locationData.data.results[0]?.geometry.location;
+    // if (!location) {
+    //     return res.send({ status: 0, message: "Invalid address. Unable to get location." });
+    //   }
+
+    
+
+
     const user=new userModel({
         name:name,
         email:email,
