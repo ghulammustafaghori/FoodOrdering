@@ -43,6 +43,9 @@ const restaurantSchema=new mongoose.Schema({
     type:{
         type:String,
         required:true
+    },
+    orders:{
+        type:Number
     }
 })
 let restaurantModel=mongoose.model('restaurant',restaurantSchema);
