@@ -34,7 +34,7 @@ let insertRestaurant=async (req,res)=>{
     try {
         // Check if an image is uploaded
         const image = req.file ? req.file.filename : null;
-    let {name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type}=req.body;
+    let {name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type,orders}=req.body;
   
     const restaurant=new restaurantModel({
         image:imagePath,
@@ -47,7 +47,8 @@ let insertRestaurant=async (req,res)=>{
         owner_name:owner_name,
         owner_phone:owner_phone,
         owner_email:owner_email,
-        type:type
+        type:type,
+        orders:orders
     })
     await restaurant.save();
     res.send({
