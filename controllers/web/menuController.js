@@ -34,7 +34,7 @@ let insertMenu=async(req,res)=>{
     try {
         // Check if an image is uploaded
         const image = req.file ? req.file.filename : null;
-    let {name,price}=req.body;
+    let {name,price,description,category}=req.body;
     let menu=new menuModel({
         name:name,
         image:imagePath,

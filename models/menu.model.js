@@ -17,7 +17,6 @@ const menuSchema= new mongoose.Schema({
     },
     price:{
         type:Number,
-        required:true
     }
 })
 let menuModel=mongoose.model('menu',menuSchema);
