@@ -1,5 +1,6 @@
 const restaurantModel = require('../../models/restaurant.model');
-
+const multer = require('multer');
+const fs = require('fs');
 let restaurantList= async(req,res)=>{
     const restaurants=await restaurantModel.find();
     res.send({
@@ -8,8 +9,30 @@ let restaurantList= async(req,res)=>{
         data:restaurants
     })
 }
+const uploadDir = './uploads';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const fileUpload = multer({
+    storage: multer.diskStorage({
+        destination: function (req,file,callback) {
+            callback(null,uploadDir);
+        },
+        filename: function (req,file,callback) {
+            const ext = file.originalname.split('.').pop(); // Get file extension
+            const uniqueName = file.fieldname + "." + Date.now() + "." + ext;
+            callback(null, uniqueName);
+        }
+    })
+}).single('my_file');
+
 let insertRestaurant=async (req,res)=>{
-    let {image,name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type}=req.body;
+    const image = req.file ? req.file.filename : null;
+    try {
+        // Check if an image is uploaded
+        const image = req.file ? req.file.filename : null;
+    let {name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type}=req.body;
   
     const restaurant=new restaurantModel({
         image:image,
@@ -30,6 +53,13 @@ let insertRestaurant=async (req,res)=>{
         message:"Restaurant inserted successfully",
         data:restaurant
     })
+} catch (error) {
+    res.status(500).send({
+        status: 0,
+        message: "Error inserting restaurant",
+        error: error.message
+    });
+}
 }
 
 let restaurantUpdate=async(req,res)=>{
@@ -69,4 +99,4 @@ let restaurantDelete=async(req,res)=>{
 
 
 
-module.exports={restaurantList,insertRestaurant,restaurantUpdate,restaurantDelete};
+module.exports={restaurantList,insertRestaurant,restaurantUpdate,restaurantDelete,fileUpload};

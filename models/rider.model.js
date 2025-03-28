@@ -16,6 +16,22 @@ let riderSchema= new mongoose.Schema({
         type:String,
         required:true
     },
+    account_holder_name:{
+        type:String,
+        required:true
+    },
+    account_number:{
+        type:String,
+        required:true
+    },
+    iban:{
+        type:String,
+        required:true
+    },
+    bank_name:{
+        type:String,
+        required:true
+    },
     password:{
         type:String,
         require:true

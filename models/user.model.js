@@ -22,8 +22,9 @@ const userSchema= new mongoose.Schema({
         required:true
     },
     address:{
-        type:String,
-        required:true
+        text: { type: String, required: true },  // Store address as text
+        latitude: { type: Number, required: true }, // Store latitude
+        longitude: { type: Number, required: true } // Store longitude
     },
     orders:{
         type:Number,

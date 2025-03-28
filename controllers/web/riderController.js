@@ -9,7 +9,7 @@ let riderList=async (req,res)=>{
     })
 }
 let insertRider=async(req,res)=>{
-    let {name,phone,vehicle_type,password,retypePassword,vehicle_number,ratings,availability,completed_orders,joining_date}=req.body;
+    let {name,phone,vehicle_type,password,retypePassword,vehicle_number,account_holder_name,account_number,iban,bank_name,ratings,availability,completed_orders,joining_date}=req.body;
     let rider=new riderModel({
         name:name,
         phone:phone,
@@ -17,6 +17,10 @@ let insertRider=async(req,res)=>{
         retypePassword:retypePassword,
         vehicle_type:vehicle_type,
         vehicle_number:vehicle_number,
+        account_holder_name:account_holder_name,
+        account_number:account_number,
+        iban:iban,
+        bank_name:bank_name,
         ratings:ratings,
         availability:availability,
         completed_orders:completed_orders,
@@ -33,12 +37,16 @@ let insertRider=async(req,res)=>{
 
 let updateRider=async(req,res)=>{
     let {id}=req.params;
-    let {name,phone,vehicle_type,vehicle_number,password,retypePassword,ratings,availability,completed_orders,joining_date}=req.body;
+    let {name,phone,vehicle_type,vehicle_number, account_holder_name,account_number,iban,bank_name,password,retypePassword,ratings,availability,completed_orders,joining_date}=req.body;
     let rider=await riderModel.updateOne({_id:id},{
         name:name,
         phone:phone,
         vehicle_type:vehicle_type,
         vehicle_number:vehicle_number,
+        account_holder_name:account_holder_name,
+        account_number:account_number,
+        iban:iban,
+        bank_name:bank_name,
         password:password,
         retypePassword:retypePassword,
         ratings:ratings,
