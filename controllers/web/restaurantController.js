@@ -29,6 +29,7 @@ const fileUpload = multer({
 
 let insertRestaurant=async (req,res)=>{
     const image = req.file ? req.file.filename : null;
+    const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
     try {
         // Check if an image is uploaded
         const image = req.file ? req.file.filename : null;
