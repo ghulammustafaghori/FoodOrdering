@@ -28,7 +28,8 @@ const fileUpload = multer({
 }).single('my_file');
 
 let insertRestaurant=async (req,res)=>{
-    const image = req.file ? req.file.filename : null;
+    // const image = req.file ? req.file.filename : null;
+    const imagePath = req.file ? `http://localhost:5000/uploads/${req.file.filename}` : null;
     const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
     try {
         // Check if an image is uploaded
@@ -36,7 +37,7 @@ let insertRestaurant=async (req,res)=>{
     let {name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type}=req.body;
   
     const restaurant=new restaurantModel({
-        image:image,
+        image:imagePath,
         name:name,
         password:password,
         retypePassword:retypePassword,
