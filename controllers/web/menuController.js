@@ -37,7 +37,7 @@ let insertMenu=async(req,res)=>{
     let {name,price}=req.body;
     let menu=new menuModel({
         name:name,
-        image:image,
+        image:imagePath,
         description:description,
         category:category,
         price:price
@@ -84,4 +84,4 @@ let deleteMenu=async(req,res)=>{
     })
 }
 
-module.exports={readMenu,insertMenu,updateMenu,deleteMenu};
+module.exports={readMenu,insertMenu,updateMenu,deleteMenu,fileUpload};
