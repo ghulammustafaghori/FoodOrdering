@@ -42,7 +42,7 @@ let riderSchema= new mongoose.Schema({
     },
     ratings:{
         type:String,
-        required:true
+        
     },
     availability:{
         type:String,
@@ -54,7 +54,6 @@ let riderSchema= new mongoose.Schema({
     },
     joining_date:{
         type:Date,
-        required:true
     },
     address:{
         text: { type: String, required: true },  // Store address as text

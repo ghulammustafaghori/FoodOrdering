@@ -56,7 +56,7 @@ let insertRider=async(req,res)=>{
             latitude: latitude, 
             longitude: longitude
         },
-        joining_date:joining_date
+        joining_date: new Date().toISOString().split('T')[0]
     })
     await rider.save();
     res.send({
