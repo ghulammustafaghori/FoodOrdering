@@ -46,11 +46,11 @@ let riderSchema= new mongoose.Schema({
     },
     availability:{
         type:String,
-        required:true
+       
     },
     completed_orders:{
         type:Number,
-        required:true
+       
     },
     joining_date:{
         type:Date,
