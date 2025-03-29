@@ -55,7 +55,12 @@ let riderSchema= new mongoose.Schema({
     joining_date:{
         type:Date,
         required:true
-    }
+    },
+    address:{
+        text: { type: String, required: true },  // Store address as text
+        latitude: { type: Number, required: true }, // Store latitude
+        longitude: { type: Number, required: true } // Store longitude
+    },
 
 })
 let riderModel= new mongoose.model('rider',riderSchema);

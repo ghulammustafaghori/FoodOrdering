@@ -1,5 +1,5 @@
 const riderModel=require('../../models/rider.model')
-
+const axios = require('axios');
 let riderList=async (req,res)=>{
     let rider=await riderModel.find();
     res.send({
@@ -9,7 +9,34 @@ let riderList=async (req,res)=>{
     })
 }
 let insertRider=async(req,res)=>{
-    let {name,phone,vehicle_type,password,retypePassword,vehicle_number,account_holder_name,account_number,iban,bank_name,ratings,availability,completed_orders,joining_date}=req.body;
+    let {name,phone,vehicle_type,password,retypePassword,vehicle_number,account_holder_name,account_number,iban,bank_name,ratings,availability,completed_orders,address,joining_date}=req.body;
+
+    
+        try {
+            // 1️⃣ Call Nominatim API to get coordinates from address
+            const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+                params: {
+                    q: address, // User-provided address
+                    format: "json",
+                    limit: 1
+                }
+            });
+    
+            // 2️⃣ If address not found, return an error
+            if (!geoResponse.data.length) {
+                return res.status(400).send({
+                    status: 0,
+                    message: "Invalid address. Unable to fetch location coordinates."
+                });
+            }
+    
+            // 3️⃣ Extract latitude & longitude from API response
+            let location = geoResponse.data[0];
+            let latitude = parseFloat(location.lat);
+            let longitude = parseFloat(location.lon);
+
+
+
     let rider=new riderModel({
         name:name,
         phone:phone,
@@ -24,6 +51,11 @@ let insertRider=async(req,res)=>{
         ratings:ratings,
         availability:availability,
         completed_orders:completed_orders,
+        address: { 
+            text: address, // Store user-entered address as text
+            latitude: latitude, 
+            longitude: longitude
+        },
         joining_date:joining_date
     })
     await rider.save();
@@ -33,11 +65,19 @@ let insertRider=async(req,res)=>{
         data:rider
     })
 }
+catch (error) {
+    console.error("Error inserting rider", error);
+    res.status(500).send({
+        status: 0,
+        message: "Internal server error"
+    });
+}
+}
 
 
 let updateRider=async(req,res)=>{
     let {id}=req.params;
-    let {name,phone,vehicle_type,vehicle_number, account_holder_name,account_number,iban,bank_name,password,retypePassword,ratings,availability,completed_orders,joining_date}=req.body;
+    let {name,phone,vehicle_type,vehicle_number, account_holder_name,account_number,iban,bank_name,password,retypePassword,ratings,availability,completed_orders,joining_date,address}=req.body;
     let rider=await riderModel.updateOne({_id:id},{
         name:name,
         phone:phone,
