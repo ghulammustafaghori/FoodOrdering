@@ -1,6 +1,8 @@
-const dealModel=require('../../models/menu.model');
+const dealModel=require('../../models/deal.model');
 const fs = require('fs');
 const multer = require('multer');
+const axios = require('axios');
+
 
 let readDeal=async(req,res)=>{
     let deal=await dealModel.find();
@@ -33,11 +35,12 @@ let insertDeal=async(req,res)=>{
     const imagePath = req.file ? `${req.file.filename}` : null;
 
     try {
-    let {name,price}=req.body;
+    let {name,price,description}=req.body;
     let deal=new dealModel({
         name:name,
         image:imagePath,
-        price:price
+        price:price,
+        description:description
     })
     await deal.save();
     res.send({
@@ -47,7 +50,7 @@ let insertDeal=async(req,res)=>{
     })} catch (error) {
         res.send({
             status:0,
-            message:"Menu not inserted",
+            message:"Deal not inserted",
             error:error.message
         })
     }
@@ -77,4 +80,4 @@ let deleteDeal=async(req,res)=>{
         data:deal
     })
 }
-module.exports={readDeal,insertDeal,updateDeal,deleteDeal};
+module.exports={readDeal,insertDeal,updateDeal,deleteDeal,fileUpload};
