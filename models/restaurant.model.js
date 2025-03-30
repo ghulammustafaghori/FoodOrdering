@@ -14,11 +14,12 @@ const restaurantSchema=new mongoose.Schema({
     },
     ratings:{
         type:Number,
-        required:true
+       
     },
     address:{
-        type:String,
-        required:true
+        text: { type: String, required: true },  // Store address as text
+        latitude: { type: Number, required: true }, // Store latitude
+        longitude: { type: Number, required: true } // Store longitude
     },
     owner_name:{
         type:String,

@@ -43,7 +43,11 @@ let insertRestaurant=async (req,res)=>{
         retypePassword:retypePassword,
         phone:phone,
         ratings:ratings,
-        address:address,
+        address: { 
+            text: address, // Store user-entered address as text
+            latitude: latitude, 
+            longitude: longitude
+        },
         owner_name:owner_name,
         owner_phone:owner_phone,
         owner_email:owner_email,
