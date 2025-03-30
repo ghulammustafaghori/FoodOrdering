@@ -35,7 +35,34 @@ let insertRestaurant=async (req,res)=>{
         // Check if an image is uploaded
         const image = req.file ? req.file.filename : null;
     let {name,phone,ratings,address,password,retypePassword,owner_name,owner_phone,owner_email,type,orders}=req.body;
+
+
+     try {
+                // 1️⃣ Call Nominatim API to get coordinates from address
+                const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+                    params: {
+                        q: address, // User-provided address
+                        format: "json",
+                        limit: 1
+                    }
+                });
+        
+                // 2️⃣ If address not found, return an error
+                if (!geoResponse.data.length) {
+                    return res.status(400).send({
+                        status: 0,
+                        message: "Invalid address. Unable to fetch location coordinates."
+                    });
+                }
+        
+                // 3️⃣ Extract latitude & longitude from API response
+                let location = geoResponse.data[0];
+                let latitude = parseFloat(location.lat);
+                let longitude = parseFloat(location.lon);
   
+
+
+
     const restaurant=new restaurantModel({
         image:imagePath,
         name:name,
@@ -59,7 +86,17 @@ let insertRestaurant=async (req,res)=>{
         status:1,
         message:"Restaurant inserted successfully",
         data:restaurant
-    })
+    })}
+    catch (error) {
+        console.error("Error inserting rider:", error.message);
+        console.error("Stack trace:", error.stack); // This gives detailed error info
+    
+        res.status(500).send({
+            status: 0,
+            message: "Internal server error",
+            error: error.message, // Send error message in response
+        });
+    }
 } catch (error) {
     res.status(500).send({
         status: 0,
