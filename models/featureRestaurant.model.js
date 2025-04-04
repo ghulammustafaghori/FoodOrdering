@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');
-const restaurantSchema=new mongoose.Schema({
+const featureRestaurantSchema=new mongoose.Schema({
     image:{
         type:String,
         required:true
@@ -35,14 +35,7 @@ const restaurantSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    password:{
-        type:String,
-        require:true
-    },
-    retypePassword:{
-        type:String,
-        require:true
-    },
+   
     type:{
         type:String,
         required:true
@@ -52,6 +45,6 @@ const restaurantSchema=new mongoose.Schema({
     }
 })
 // ✅ Create geospatial index
-restaurantSchema.index({ location: "2dsphere" }); // Create a 2dsphere index on the location field
-let restaurantModel=mongoose.model('restaurant',restaurantSchema);
-module.exports=restaurantModel;
+featureRestaurantSchema.index({ location: "2dsphere" }); // Create a 2dsphere index on the location field
+let featureRestaurantModel=mongoose.model('featureRestaurant',featureRestaurantSchema);
+module.exports=featureRestaurantModel;
