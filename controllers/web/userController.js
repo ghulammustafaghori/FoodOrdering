@@ -16,6 +16,8 @@ let insertUser= async(req,res)=>{
 
 
     try {
+        let latitude = null;
+        let longitude = null;
         // 1️⃣ Call Nominatim API to get coordinates from address
         const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
             params: {
@@ -25,18 +27,15 @@ let insertUser= async(req,res)=>{
             }
         });
 
-        // 2️⃣ If address not found, return an error
-        if (!geoResponse.data.length) {
-            return res.status(400).send({
-                status: 0,
-                message: "Invalid address. Unable to fetch location coordinates."
-            });
+        if (geoResponse.data.length > 0) {
+            let location = geoResponse.data[0];
+            latitude = parseFloat(location.lat);
+            longitude = parseFloat(location.lon);
+            console.log("📍 Coordinates fetched:", latitude, longitude);
+        } else {
+            console.warn("⚠️ Address not found! Saving without coordinates.");
         }
-
-        // 3️⃣ Extract latitude & longitude from API response
-        let location = geoResponse.data[0];
-        let latitude = parseFloat(location.lat);
-        let longitude = parseFloat(location.lon);
+       
 
         // 4️⃣ Save user with both text address & coordinates
         const user = new userModel({
@@ -93,25 +92,23 @@ let updateUser = async (req, res) => {
                 }
             });
 
-            // 3️⃣ If address not found, return an error
+            // 3️⃣ If address not found, log a warning and skip coordinates update
             if (!geoResponse.data.length) {
-                return res.status(400).send({
-                    status: 0,
-                    message: "Invalid address. Unable to fetch location coordinates."
-                });
+                console.warn("⚠️ Address not found! Saving without coordinates.");
+                updateObj.address = { text: address }; // Save only text address without coordinates
+            } else {
+                // 4️⃣ Extract latitude & longitude from API response
+                let location = geoResponse.data[0];
+                let latitude = parseFloat(location.lat);
+                let longitude = parseFloat(location.lon);
+
+                // 5️⃣ Add address details to the update object
+                updateObj.address = {
+                    text: address,  // Store user-entered address as text
+                    latitude: latitude,
+                    longitude: longitude
+                };
             }
-
-            // 4️⃣ Extract latitude & longitude from API response
-            let location = geoResponse.data[0];
-            let latitude = parseFloat(location.lat);
-            let longitude = parseFloat(location.lon);
-
-            // 5️⃣ Add address details to the update object
-            updateObj.address = {
-                text: address,  // Store user-entered address as text
-                latitude: latitude,
-                longitude: longitude
-            };
         }
 
         // 6️⃣ Update the user
@@ -140,6 +137,7 @@ let updateUser = async (req, res) => {
         });
     }
 };
+
 
 
 

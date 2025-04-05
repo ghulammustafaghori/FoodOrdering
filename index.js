@@ -12,9 +12,11 @@ const restaurantRoutes = require('./routes/web/restaurantRoutes');
 const riderRoutes = require('./routes/web/riderRoutes');
 const menuRoutes = require('./routes/web/menuRoutes');
 const dealRoutes = require('./routes/web/dealRoutes');
+const orderRoutes = require('./routes/web/orderRoutes');
 const featureRestaurantRoutes = require('./routes/web/featureRestaurantRoutes');
 const cors=require('cors');
 const searchRestaurantRoutes = require('./routes/web/searchRestaurantRoutes');
+const adminRoutes = require('./routes/admin/adminRoutes');
 mongoose.connect(process.env.DB_URL,{
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -44,6 +46,8 @@ app.use('/web/api/menus',menuRoutes)
 app.use('/web/api/deals',dealRoutes)
 app.use('/web/api',searchRestaurantRoutes);
 app.use('/web/api/featureRestaurants',featureRestaurantRoutes);
+app.use('/web/api/checkout',orderRoutes);
+app.use('/web/api/admin',adminRoutes);
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running on port ${process.env.PORT}`);
