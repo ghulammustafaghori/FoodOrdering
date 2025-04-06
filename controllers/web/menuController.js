@@ -4,7 +4,7 @@ const multer = require('multer');
 
 
 let readMenu=async(req,res)=>{
-    let menu=await menuModel.find();
+    let menu=await menuModel.find().populate('restaurantId');
     res.send({
         status:1,
         message:"Menu fetched successfully",
@@ -34,13 +34,20 @@ let insertMenu=async(req,res)=>{
     try {
         // Check if an image is uploaded
         const image = req.file ? req.file.filename : null;
-    let {name,price,description,category}=req.body;
+    let {name,price,description,category,restaurantId}=req.body;
+    if (!restaurantId) {
+        return res.send({
+            status: 0,
+            message: "restaurantId is required"
+        });
+    }
     let menu=new menuModel({
         name:name,
         image:imagePath,
         description:description,
         category:category,
-        price:price
+        price:price,
+        restaurantId
     })
     await menu.save();
     res.send({
