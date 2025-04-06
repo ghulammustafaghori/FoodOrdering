@@ -4,7 +4,7 @@ const multer = require('multer');
 
 
 let readMenu=async(req,res)=>{
-    let menu=await menuModel.find().populate('restaurantId');
+    let menu=await menuModel.find();
     res.send({
         status:1,
         message:"Menu fetched successfully",
