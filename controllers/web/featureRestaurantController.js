@@ -76,6 +76,10 @@ let insertFeatureRestaurant=async (req,res)=>{
             latitude: latitude, 
             longitude: longitude
         },
+        location: {
+            type: "Point",
+            coordinates: [longitude, latitude] // GeoJSON format: [lng, lat]
+        },
         owner_name:owner_name,
         owner_phone:owner_phone,
         owner_email:owner_email,

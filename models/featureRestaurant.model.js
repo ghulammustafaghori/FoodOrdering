@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 const featureRestaurantSchema=new mongoose.Schema({
     image:{
         type:String,
-        required:true
+        
     },
     name:{
         type:String,
@@ -20,8 +20,8 @@ const featureRestaurantSchema=new mongoose.Schema({
         text: { type: String, required: true },  // Store address as text
     },
     location: { 
-        type: { type: String, enum: ["Point"], required: true, default: "Point" },
-        coordinates: { type: [Number], required: true } // [longitude, latitude]
+        type: { type: String, enum: ["Point"], required: false, default: "Point" },
+        coordinates: { type: [Number], required: false } // [longitude, latitude]
     },
     owner_name:{
         type:String,
