@@ -30,7 +30,7 @@ mongoose.connect(process.env.DB_URL,{
 
 app.use(cors({
     origin: "http://localhost:3000", // Allow frontend to access API
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
     credentials: true
 }));
 app.use(express.json());
