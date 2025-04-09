@@ -236,21 +236,24 @@ const approvePendingRestaurant = async (req, res) => {
       // Find the pending restaurant
       const pendingRestaurant = await pendingRestaurantModel.findById(restaurantId);
       if (!pendingRestaurant) {
+        console.error('Pending restaurant not found:', restaurantId);
         return res.status(404).json({ status: 0, message: 'Pending restaurant not found' });
       }
   
       // Move to main restaurants collection
+      console.log('Approving restaurant:', pendingRestaurant);
       const approvedRestaurant = await restaurantModel.create({
         ...pendingRestaurant.toObject(),
         status: 'approved', // Optional: set status
       });
   
       // Remove from pending
+      console.log('Removing from pending:', restaurantId);
       await PendingRestaurantModel.findByIdAndDelete(restaurantId);
   
       res.status(200).json({ status: 1, message: 'Restaurant approved', data: approvedRestaurant });
     } catch (error) {
-      console.error('Error approving restaurant:', error);
+      console.error('Detail approving restaurant error:', error);
       res.status(500).json({ status: 0, message: 'Internal server error' });
     }
   };
