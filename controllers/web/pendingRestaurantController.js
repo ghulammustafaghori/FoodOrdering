@@ -230,29 +230,53 @@ let pendingRestaurantDelete=async(req,res)=>{
 
 const approvePendingRestaurant = async (req, res) => {
     try {
-      const restaurantId = req.params.id;
-  
-      // Find the pending restaurant
-      const pendingRestaurant = await pendingRestaurantModel.findById(restaurantId);
-      if (!pendingRestaurant) {
-        return res.status(404).json({ status: 0, message: 'Pending restaurant not found' });
-      }
-  
-      // Move to main restaurants collection
-      const approvedRestaurant = await restaurantModel.create({
-        ...pendingRestaurant.toObject(),
-        status: 'approved', // Optional: set status
-      });
-  
-      // Remove from pending
-      await PendingRestaurantModel.findByIdAndDelete(restaurantId);
-  
-      res.status(200).json({ status: 1, message: 'Restaurant approved', data: approvedRestaurant });
+        const restaurantId = req.params.id;
+
+        // Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+            return res.status(400).json({ status: 0, message: 'Invalid restaurant ID' });
+        }
+
+        console.log("🆔 Approving restaurant with ID:", restaurantId);
+
+        // Find the pending restaurant
+        const pendingRestaurant = await pendingRestaurantModel.findById(restaurantId);
+        if (!pendingRestaurant) {
+            return res.status(404).json({ status: 0, message: 'Pending restaurant not found' });
+        }
+
+        // Move to main restaurants collection
+        const approvedRestaurant = await restaurantModel.create({
+            ...pendingRestaurant.toObject(),
+            status: 'approved', // Optional: set status
+        });
+
+        // Delete from pendingRestaurants collection
+        try {
+            const deleted = await pendingRestaurantModel.findByIdAndDelete(restaurantId);
+            if (!deleted) {
+                console.warn("⚠️ Restaurant was not deleted from pending collection.");
+            } else {
+                console.log("🧹 Deleted from pending collection:", deleted._id);
+            }
+        } catch (deleteErr) {
+            console.error("❌ Error during deletion from pending:", deleteErr.message);
+            return res.status(500).json({
+                status: 0,
+                message: "Error deleting from pending restaurants",
+                error: deleteErr.message
+            });
+        }
+
+        // Send success response
+        res.status(200).json({ status: 1, message: 'Restaurant approved', data: approvedRestaurant });
+
     } catch (error) {
-      console.error('Error approving restaurant:', error);
-      res.status(500).json({ status: 0, message: 'Internal server error' });
+        console.error('❌ Error approving restaurant:', error.message);
+        console.error(error.stack);
+        res.status(500).json({ status: 0, message: 'Internal server error', error: error.message });
     }
-  };
+};
 
 
 
