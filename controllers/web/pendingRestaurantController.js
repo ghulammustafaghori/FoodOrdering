@@ -1,4 +1,5 @@
 const pendingRestaurantModel = require('../../models/pendingRestaurant.model');
+const restaurantModel = require('../../models/restaurant.model');
 const axios = require('axios');
 const multer = require('multer');
 const fs = require('fs');
@@ -227,6 +228,33 @@ let pendingRestaurantDelete=async(req,res)=>{
 }
 
 
+const approvePendingRestaurant = async (req, res) => {
+    try {
+      const restaurantId = req.params.id;
+  
+      // Find the pending restaurant
+      const pendingRestaurant = await pendingRestaurantModel.findById(restaurantId);
+      if (!pendingRestaurant) {
+        return res.status(404).json({ status: 0, message: 'Pending restaurant not found' });
+      }
+  
+      // Move to main restaurants collection
+      const approvedRestaurant = await restaurantModel.create({
+        ...pendingRestaurant.toObject(),
+        status: 'approved', // Optional: set status
+      });
+  
+      // Remove from pending
+      await PendingRestaurant.findByIdAndDelete(restaurantId);
+  
+      res.status(200).json({ status: 1, message: 'Restaurant approved', data: approvedRestaurant });
+    } catch (error) {
+      console.error('Error approving restaurant:', error);
+      res.status(500).json({ status: 0, message: 'Internal server error' });
+    }
+  };
 
 
-module.exports={pendingRestaurantList,insertPendingRestaurant,pendingRestaurantUpdate,pendingRestaurantDelete,fileUpload};
+
+
+module.exports={pendingRestaurantList,insertPendingRestaurant,pendingRestaurantUpdate,approvePendingRestaurant,pendingRestaurantDelete,fileUpload};
