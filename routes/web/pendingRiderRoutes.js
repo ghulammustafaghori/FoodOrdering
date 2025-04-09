@@ -1,5 +1,5 @@
 const express=require('express')
-let {pendingRiderList,pendingInsertRider, pendingDeleteRider}=require('../../controllers/web/pendingRiderController')
+let {pendingRiderList,pendingInsertRider, pendingDeleteRider,approvePendingRider}=require('../../controllers/web/pendingRiderController')
 
 const pendingRiderRoutes=express.Router();
 
@@ -8,6 +8,7 @@ const pendingRiderRoutes=express.Router();
 pendingRiderRoutes.get('/pendingRider-list',pendingRiderList)
 pendingRiderRoutes.post('/insertPending-rider',pendingInsertRider)
 pendingRiderRoutes.delete('/deletePending-rider/:id',pendingDeleteRider)
+pendingRiderRoutes.get('/approvePending-rider/:id',approvePendingRider);
 
 
 

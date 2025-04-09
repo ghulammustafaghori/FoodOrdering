@@ -1,4 +1,5 @@
-const pendingRiderModel=require('../../models/pendingRider.model')
+const pendingRiderModel=require('../../models/pendingRider.model');
+const riderModel=require('../../models/rider.model');
 const axios = require('axios');
 let pendingRiderList=async (req,res)=>{
     let rider=await riderModel.find();
@@ -87,5 +88,53 @@ let pendingDeleteRider=async(req,res)=>{
 }
 
 
+const approvePendingRider = async (req, res) => {
+    try {
+        const riderId = req.params.id;
+        console.log('Approving rider ID:', riderId);
+    
+        // 1. Find the pending rider
+        const pendingRider = await pendingRiderModel.findById(riderId);
+        if (!pendingRider) {
+            console.error('Pending rider not found');
+            return res.status(404).json({ 
+                status: 0, 
+                message: 'Pending rider not found' 
+            });
+        }
+    
+        // 2. Prepare data for approved rider
+        const riderData = {
+            ...pendingRider.toObject(),
+            _id: undefined, // Remove original ID to prevent duplicate key
+            status: 'approved',
+            approvedAt: new Date() // Add approval timestamp
+        };
+        
+        // 3. Create in main collection
+        const approvedRider = await riderModel.create(riderData);
+        console.log('Created approved rider:', approvedRider._id);
+    
+        // 4. Delete from pending collection
+        await pendingRiderModel.findByIdAndDelete(riderId);
+        console.log('Removed pending rider');
+    
+        res.send({
+            status: 1,
+            message: "Rider approved successfully",
+            data: approvedRider
+        });
+    } catch (error) {
+        console.error("Error approving rider:", error.message);
+        console.error("Stack trace:", error.stack); // This gives detailed error info
+    
+        res.status(500).send({
+            status: 0,
+            message: "Internal server error",
+            error: error.message, // Send error message in response
+        });
+    }
+    };
+        
 
-module.exports={pendingRiderList,pendingInsertRider,pendingDeleteRider}
+module.exports={pendingRiderList,pendingInsertRider,pendingDeleteRider,approvePendingRider};
