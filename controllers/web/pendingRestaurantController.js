@@ -30,76 +30,93 @@ const fileUpload = multer({
 
 let insertPendingRestaurant = async (req, res) => {
     const imagePath = req.file ? `${req.file.filename}` : null;
-    const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
 
     try {
-        let { name, phone, ratings, address, password, retypePassword, owner_name, owner_phone, owner_email, type, orders } = req.body;
+        let {
+            name,
+            phone,
+            ratings,
+            address,
+            password,
+            retypePassword,
+            owner_name,
+            owner_phone,
+            owner_email,
+            type,
+            orders
+        } = req.body;
 
-        // 1️⃣ Call Nominatim API to get coordinates from address
-        const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
-            params: {
-                q: address, // User-provided address
-                format: "json",
-                limit: 1
-            }
-        });
-
-        // 2️⃣ If address not found, return a warning and skip coordinates
+        // Initialize coordinates as null
         let latitude = null;
         let longitude = null;
 
-        if (geoResponse.data.length > 0) {
-            let location = geoResponse.data[0];
-            latitude = parseFloat(location.lat);
-            longitude = parseFloat(location.lon);
-            console.log("📍 Coordinates fetched:", latitude, longitude);
-        } else {
-            console.warn("⚠️ Address not found! Saving without coordinates.");
+        // Try to fetch coordinates from Nominatim API
+        try {
+            const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+                params: {
+                    q: address,
+                    format: "json",
+                    limit: 1
+                }
+            });
+
+            if (geoResponse.data.length > 0) {
+                let location = geoResponse.data[0];
+                latitude = parseFloat(location.lat);
+                longitude = parseFloat(location.lon);
+                console.log("📍 Coordinates fetched:", latitude, longitude);
+            } else {
+                console.warn("⚠️ Address not found, using default coordinates.");
+            }
+        } catch (geoErr) {
+            console.warn("⚠️ Geocoding failed, using default coordinates.");
         }
 
-        // 3️⃣ Create the restaurant object with the address and coordinates
-       // 3️⃣ Build the restaurant object dynamically
-const pendingRestaurantData = {
-    image: imagePath,
-    name,
-    password,
-    retypePassword,
-    phone,
-    ratings,
-    address: {
-        text: address,
-        latitude: latitude || "",  // Add empty string if no latitude
-        longitude: longitude || ""  // Add empty string if no longitude
-    },
-    owner_name,
-    owner_phone,
-    owner_email,
-    type,
-    orders
-};
+        // If no valid coordinates found, set to [0, 0]
+        if (latitude === null || longitude === null || isNaN(latitude) || isNaN(longitude)) {
+            latitude = 0;
+            longitude = 0;
+        }
 
-// ✅ Add `location` only if coordinates are found
-if (latitude && longitude) {
-    pendingRestaurantData.location = {
-        type: 'Point',
-        coordinates: [longitude, latitude]
-    };
-}
+        // Build the restaurant object
+        const pendingRestaurantData = {
+            image: imagePath,
+            name,
+            password,
+            retypePassword,
+            phone,
+            ratings,
+            address: {
+                text: address
+            },
+            owner_name,
+            owner_phone,
+            owner_email,
+            type,
+            orders
+        };
 
-const pendingRestaurant = new pendingRestaurantModel(pendingRestaurantData);
+        // Add location with the coordinates
+        pendingRestaurantData.location = {
+            type: 'Point',
+            coordinates: [longitude, latitude] // Coordinates in [longitude, latitude] format
+        };
 
+        // Log the final pendingRestaurantData to see if the location is correctly set
+        console.log("✅ Restaurant Data to be Saved:", pendingRestaurantData);
 
-        // 4️⃣ Save the restaurant
+        // Save the restaurant data to DB
+        const pendingRestaurant = new pendingRestaurantModel(pendingRestaurantData);
         await pendingRestaurant.save();
+
         res.send({
             status: 1,
             message: "Pending Restaurant inserted successfully",
             data: pendingRestaurant
         });
-    } catch (error) {
-        console.error("Error inserting restaurant:", error.message);
-        console.error("Stack trace:", error.stack);
 
+    } catch (error) {
+        console.error("❌ Error inserting restaurant:", error.message);
         res.status(500).send({
             status: 0,
             message: "Internal server error",
@@ -107,6 +124,7 @@ const pendingRestaurant = new pendingRestaurantModel(pendingRestaurantData);
         });
     }
 };
+
 
 
 let pendingRestaurantUpdate = async (req, res) => {

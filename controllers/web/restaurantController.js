@@ -35,59 +35,77 @@ let insertRestaurant = async (req, res) => {
     try {
         let { name, phone, ratings, address, password, retypePassword, owner_name, owner_phone, owner_email, type, orders } = req.body;
 
-        // 1️⃣ Call Nominatim API to get coordinates from address
-        const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
-            params: {
-                q: address, // User-provided address
-                format: "json",
-                limit: 1
-            }
-        });
-
-        // 2️⃣ If address not found, return a warning and skip coordinates
+        // Initialize coordinates as null
         let latitude = null;
         let longitude = null;
 
-        if (geoResponse.data.length > 0) {
-            let location = geoResponse.data[0];
-            latitude = parseFloat(location.lat);
-            longitude = parseFloat(location.lon);
-            console.log("📍 Coordinates fetched:", latitude, longitude);
-        } else {
-            console.warn("⚠️ Address not found! Saving without coordinates.");
+        // Try to fetch coordinates from Nominatim API
+        try {
+            const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+                params: {
+                    q: address,
+                    format: "json",
+                    limit: 1
+                }
+            });
+
+            if (geoResponse.data.length > 0) {
+                let location = geoResponse.data[0];
+                latitude = parseFloat(location.lat);
+                longitude = parseFloat(location.lon);
+                console.log("📍 Coordinates fetched:", latitude, longitude);
+            } else {
+                console.warn("⚠️ Address not found, using default coordinates.");
+            }
+        } catch (geoErr) {
+            console.warn("⚠️ Geocoding failed, using default coordinates.");
         }
 
-        // 3️⃣ Create the restaurant object with the address and coordinates
-        const restaurant = new restaurantModel({
-            image: imagePath,
-            name: name,
-            password: password,
-            retypePassword: retypePassword,
-            phone: phone,
-            ratings: ratings,
-            address: {
-                text: address,  // Store user-entered address as text
-                latitude: latitude,
-                longitude: longitude
-            },
-            owner_name: owner_name,
-            owner_phone: owner_phone,
-            owner_email: owner_email,
-            type: type,
-            orders: orders
-        });
+        // If no valid coordinates found, set to [0, 0]
+        if (latitude === null || longitude === null || isNaN(latitude) || isNaN(longitude)) {
+            latitude = 0;
+            longitude = 0;
+        }
 
-        // 4️⃣ Save the restaurant
+        // Build the restaurant object
+        const restaurantData = {
+            image: imagePath,
+            name,
+            password,
+            retypePassword,
+            phone,
+            ratings,
+            address: {
+                text: address
+            },
+            owner_name,
+            owner_phone,
+            owner_email,
+            type,
+            orders
+        };
+
+        // Add location with the coordinates (in [longitude, latitude] format)
+        restaurantData.location = {
+            type: 'Point',
+            coordinates: [longitude, latitude] // Coordinates in [longitude, latitude] format
+        };
+
+        // Log the final restaurantData to see if the location is correctly set
+        console.log("✅ Restaurant Data to be Saved:", restaurantData);
+
+        // Save the restaurant data to DB
+        const restaurant = new restaurantModel(restaurantData);
         await restaurant.save();
+
         res.send({
             status: 1,
             message: "Restaurant inserted successfully",
             data: restaurant
         });
-    } catch (error) {
-        console.error("Error inserting restaurant:", error.message);
-        console.error("Stack trace:", error.stack);
 
+    } catch (error) {
+        console.error("❌ Error inserting restaurant:", error.message);
         res.status(500).send({
             status: 0,
             message: "Internal server error",
@@ -95,6 +113,7 @@ let insertRestaurant = async (req, res) => {
         });
     }
 };
+
 
 
 let restaurantUpdate = async (req, res) => {

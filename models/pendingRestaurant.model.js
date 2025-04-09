@@ -27,7 +27,8 @@ const pendingRestaurantSchema=new mongoose.Schema({
                default: "Point"
              },
         coordinates: { 
-            type: [Number]
+            type: [Number],
+            
         }
             
     },
