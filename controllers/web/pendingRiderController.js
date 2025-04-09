@@ -12,8 +12,8 @@ let pendingInsertRider = async (req, res) => {
     let { name, phone, vehicle_type, password, retypePassword, vehicle_number, account_holder_name, account_number, iban, bank_name, ratings, availability, completed_orders, address, joining_date } = req.body;
 
     try {
-        let latitude = null;
-        let longitude = null;
+        let latitude = 0;
+        let longitude = 0;
 
         // 1️⃣ Call Nominatim API to get coordinates from address
         const geoResponse = await axios.get(`https://nominatim.openstreetmap.org/search`, {
