@@ -245,7 +245,7 @@ const approvePendingRestaurant = async (req, res) => {
       });
   
       // Remove from pending
-      await PendingRestaurant.findByIdAndDelete(restaurantId);
+      await PendingRestaurantModel.findByIdAndDelete(restaurantId);
   
       res.status(200).json({ status: 1, message: 'Restaurant approved', data: approvedRestaurant });
     } catch (error) {
