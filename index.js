@@ -18,6 +18,7 @@ const cors=require('cors');
 const searchRestaurantRoutes = require('./routes/web/searchRestaurantRoutes');
 const adminRoutes = require('./routes/admin/adminRoutes');
 const pendingRestaurantRoutes = require('./routes/web/pendingRestaurantRoutes');
+const pendingRiderRoutes = require('./routes/web/pendingRiderRoutes');
 mongoose.connect(process.env.DB_URL,{
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -50,6 +51,7 @@ app.use('/web/api',searchRestaurantRoutes);
 app.use('/web/api/featureRestaurants',featureRestaurantRoutes);
 app.use('/web/api/checkout',orderRoutes);
 app.use('/web/api/admin',adminRoutes);
+app.use('/web/api/pendingRiders',pendingRiderRoutes);
 
 
 app.listen(process.env.PORT,()=>{
