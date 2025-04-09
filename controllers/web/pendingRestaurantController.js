@@ -231,32 +231,63 @@ let pendingRestaurantDelete=async(req,res)=>{
 
 const approvePendingRestaurant = async (req, res) => {
     try {
-      const restaurantId = req.params.id;
-  
-      // Find the pending restaurant
-      const pendingRestaurant = await pendingRestaurantModel.findById(restaurantId);
-      if (!pendingRestaurant) {
-        console.error('Pending restaurant not found:', restaurantId);
-        return res.status(404).json({ status: 0, message: 'Pending restaurant not found' });
-      }
-  
-      // Move to main restaurants collection
-      console.log('Approving restaurant:', pendingRestaurant);
-      const approvedRestaurant = await restaurantModel.create({
-        ...pendingRestaurant.toObject(),
-        status: 'approved', // Optional: set status
-      });
-  
-      // Remove from pending
-      console.log('Removing from pending:', restaurantId);
-      await PendingRestaurantModel.findByIdAndDelete(restaurantId);
-  
-      res.status(200).json({ status: 1, message: 'Restaurant approved', data: approvedRestaurant });
+        const restaurantId = req.params.id;
+        console.log('Approving restaurant ID:', restaurantId);
+
+        // 1. Find the pending restaurant
+        const pendingRestaurant = await pendingRestaurantModel.findById(restaurantId);
+        if (!pendingRestaurant) {
+            console.error('Pending restaurant not found');
+            return res.status(404).json({ 
+                status: 0, 
+                message: 'Pending restaurant not found' 
+            });
+        }
+
+        // 2. Prepare data for approved restaurant
+        const restaurantData = {
+            ...pendingRestaurant.toObject(),
+            _id: undefined, // Remove original ID to prevent duplicate key
+            status: 'approved',
+            approvedAt: new Date() // Add approval timestamp
+        };
+        
+        // 3. Create in main collection
+        const approvedRestaurant = await restaurantModel.create(restaurantData);
+        console.log('Created approved restaurant:', approvedRestaurant._id);
+
+        // 4. Delete from pending collection
+        await pendingRestaurantModel.findByIdAndDelete(restaurantId);
+        console.log('Removed pending restaurant');
+
+        // 5. Send success response
+        res.status(200).json({ 
+            status: 1, 
+            message: 'Restaurant approved successfully',
+            data: approvedRestaurant
+        });
+
     } catch (error) {
-      console.error('Detail approving restaurant error:', error);
-      res.status(500).json({ status: 0, message: 'Internal server error' });
+        console.error('Approval failed:', error.message);
+        
+        // Handle duplicate key errors separately
+        if (error.code === 11000) {
+            return res.status(409).json({
+                status: 0,
+                message: 'Restaurant already exists in approved collection'
+            });
+        }
+
+        res.status(500).json({
+            status: 0,
+            message: 'Failed to approve restaurant',
+            error: process.env.NODE_ENV === 'development' ? {
+                message: error.message,
+                type: error.name
+            } : undefined
+        });
     }
-  };
+};
 
 
 
