@@ -29,7 +29,7 @@ const fileUpload = multer({
 }).single('my_file');
 
 let insertRestaurant = async (req, res) => {
-    const imagePath = req.file ? `${req.file.filename}` : null;
+    const imagePath = req.file ? `${req.file.filename}` :req.body.image || null;
     const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
 
     try {
