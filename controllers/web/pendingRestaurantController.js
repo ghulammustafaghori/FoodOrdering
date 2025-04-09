@@ -219,6 +219,7 @@ let pendingRestaurantUpdate = async (req, res) => {
 
 let pendingRestaurantDelete=async(req,res)=>{
     let {id}=req.params;
+    console.log('Deleting restaurant with ID:', id); 
     const pendingRestaurant=await pendingRestaurantModel.deleteOne({_id:id})
     res.send({
         status:1,
