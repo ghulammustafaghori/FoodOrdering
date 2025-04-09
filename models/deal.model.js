@@ -14,7 +14,12 @@ const dealSchema= new mongoose.Schema({
     price:{
         type:Number,
         required:true
-    }
+    },
+    restaurantId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'restaurant', // assuming your restaurant model is called 'restaurant'
+            required: true
+        }
 })
 let dealModel=mongoose.model('deal',dealSchema);
 module.exports=dealModel;

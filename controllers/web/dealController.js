@@ -40,7 +40,8 @@ let insertDeal=async(req,res)=>{
         name:name,
         image:imagePath,
         price:price,
-        description:description
+        description:description,
+        restaurantId:restaurantId
     })
     await deal.save();
     res.send({
