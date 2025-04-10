@@ -8,7 +8,7 @@ const pendingRiderRoutes=express.Router();
 pendingRiderRoutes.get('/pendingRider-list',pendingRiderList)
 pendingRiderRoutes.post('/insertPending-rider',pendingInsertRider)
 pendingRiderRoutes.delete('/deletePending-rider/:id',pendingDeleteRider)
-pendingRiderRoutes.get('/approvePending-rider/:id',approvePendingRider);
+pendingRiderRoutes.post('/approvePending-rider/:id',approvePendingRider);
 
 
 
