@@ -2,7 +2,7 @@ const pendingRiderModel=require('../../models/pendingRider.model');
 const riderModel=require('../../models/rider.model');
 const axios = require('axios');
 let pendingRiderList=async (req,res)=>{
-    let rider=await riderModel.find();
+    let rider=await pendingRiderModel.find();
     res.send({
         status:1,
         message:"riders list",
