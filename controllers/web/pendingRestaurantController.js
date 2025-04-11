@@ -31,6 +31,7 @@ const fileUpload = multer({
 
 let insertPendingRestaurant = async (req, res) => {
     const imagePath = req.file ? `${req.file.filename}` : null;
+    console.log("📦 Uploaded file info:", req.file);
 
     try {
         let {
