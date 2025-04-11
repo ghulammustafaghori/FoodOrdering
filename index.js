@@ -1,12 +1,12 @@
 require('dotenv').config();
 const express= require('express');
 const app=express();
-const axios = require('axios');
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
+// const axios = require('axios');
+// const session = require("express-session");
+// const MongoStore = require("connect-mongo");
 const bcrypt = require("bcryptjs");
 const mongoose=require('mongoose');
-const Users=require('./models/user.model');
+// const Users=require('./models/user.model');
 const userRoutes = require('./routes/web/userRoutes');
 const restaurantRoutes = require('./routes/web/restaurantRoutes');
 const riderRoutes = require('./routes/web/riderRoutes');
