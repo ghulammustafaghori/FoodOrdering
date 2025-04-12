@@ -3,7 +3,8 @@ const { featureRestaurantList, insertFeatureRestaurant, featureRestaurantDelete,
 const featureRestaurantRoutes=express.Router();
 
 featureRestaurantRoutes.get('/featureRestaurant-list',featureRestaurantList);
-featureRestaurantRoutes.post('/insert-featureRestaurant/:id',insertFeatureRestaurant);
+featureRestaurantRoutes.post('/feature-existingRestaurant/:id',featureExistingRestaurant);
+featureRestaurantRoutes.post('/insert-featureRestaurant/:id',fileUpload,insertFeatureRestaurant);
 // featureRestaurantRoutes.put('/update-restaurant/:id',restaurantUpdate);
 featureRestaurantRoutes.delete('/delete-featureRestaurant/:id',featureRestaurantDelete);
 
