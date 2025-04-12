@@ -1,4 +1,5 @@
 const featureRestaurantModel = require("../../models/featureRestaurant.model");
+const restaurantModel = require("../../models/restaurant.model");
 const axios = require('axios');
 const multer = require('multer');
 const fs = require('fs');
