@@ -122,4 +122,57 @@ let featureRestaurantDelete=async(req,res)=>{
 
 
 
-module.exports={featureRestaurantList,insertFeatureRestaurant,featureRestaurantDelete,fileUpload};
+let featureExistingRestaurant = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const existingRestaurant = await restaurantModel.findById(id);
+
+        if (!existingRestaurant) {
+            return res.status(404).send({
+                status: 0,
+                message: "Restaurant not found",
+            });
+        }
+
+        const alreadyFeatured = await featureRestaurantModel.findOne({ name: existingRestaurant.name });
+        if (alreadyFeatured) {
+            return res.status(409).send({
+                status: 0,
+                message: "Restaurant already featured",
+            });
+        }
+
+        const featured = new featureRestaurantModel({
+            name: existingRestaurant.name,
+            phone: existingRestaurant.phone,
+            ratings: existingRestaurant.ratings,
+            image: existingRestaurant.image,
+            address: existingRestaurant.address,
+            owner_name: existingRestaurant.owner_name,
+            owner_phone: existingRestaurant.owner_phone,
+            owner_email: existingRestaurant.owner_email,
+            type: existingRestaurant.type,
+            orders: existingRestaurant.orders,
+            location: existingRestaurant.location
+        });
+
+        await featured.save();
+
+        res.send({
+            status: 1,
+            message: "Restaurant featured successfully",
+            data: featured
+        });
+
+    } catch (error) {
+        console.error("💥 Feature insert error:", error.message);
+        res.status(500).send({
+            status: 0,
+            message: "Error featuring restaurant",
+            error: error.message
+        });
+    }
+};
+
+module.exports={featureRestaurantList,insertFeatureRestaurant,featureRestaurantDelete,fileUpload,featureExistingRestaurant};
