@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 const featureRestaurantSchema=new mongoose.Schema({
     image:{
         type:String,
-        required:false
+        required:true
     },
     name:{
         type:String,
