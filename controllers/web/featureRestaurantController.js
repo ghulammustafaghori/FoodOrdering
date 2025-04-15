@@ -77,7 +77,7 @@ let insertFeatureRestaurant = async (req, res) => {
 
     try {
         const restaurant = new featureRestaurantModel({
-            image: imagePath ? `${baseUrl}${imagePath}` : null,
+            image: imagePath,
             name,
             password,
             retypePassword,
