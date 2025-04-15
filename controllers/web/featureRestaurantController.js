@@ -30,7 +30,17 @@ const fileUpload = multer({
 }).single('my_file');
 
 let insertFeatureRestaurant = async (req, res) => {
-    const imagePath = req.file ? `${req.file.filename}` : req.body.image?.startsWith('http') ? req.body.image : null;
+    let imagePath;
+
+    if (req.file) {
+      imagePath = req.file.filename;
+    } else if (req.body.image) {
+      // Handle case where image is a full URL — extract just the filename
+      const imageParts = req.body.image.split('/');
+      imagePath = imageParts[imageParts.length - 1];
+    } else {
+      imagePath = null;
+    }
     const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
 
     let {
