@@ -26,14 +26,23 @@ const fileUpload = multer({
             const uniqueName = file.fieldname + "." + Date.now() + "." + ext;
             callback(null, uniqueName);
         }
+        
     })
+    
+    
 }).single('my_file');
 
+
+
+
+
+
 let insertPendingRestaurant = async (req, res) => {
-    const imagePath = req.file ? `${req.file.filename}` : null;
-    console.log("📦 Uploaded file info:", req.file);
+   
 
     try {
+        const imagePath = req.file ? `${req.file.filename}` : null;
+        console.log("📦 Uploaded file info:", req.file);
         let {
             name,
             phone,
