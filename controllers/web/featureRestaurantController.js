@@ -30,7 +30,7 @@ const fileUpload = multer({
 }).single('my_file');
 
 let insertFeatureRestaurant = async (req, res) => {
-    const imagePath = req.file ? `${req.file.filename}` : null;
+    const imagePath = req.file ? `${req.file.filename}` : req.body.image?.startsWith('http') ? req.body.image : null;
     const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
 
     let {
@@ -67,7 +67,7 @@ let insertFeatureRestaurant = async (req, res) => {
 
     try {
         const restaurant = new featureRestaurantModel({
-            image: imagePath,
+            image: imagePath ? `${baseUrl}${imagePath}` : null,
             name,
             password,
             retypePassword,
