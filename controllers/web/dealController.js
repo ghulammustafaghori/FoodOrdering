@@ -35,7 +35,7 @@ let insertDeal=async(req,res)=>{
     const imagePath = req.file ? `${req.file.filename}` : null;
 
     try {
-    let {name,price,description}=req.body;
+    let {name,price,description,restaurantId}=req.body;
     let deal=new dealModel({
         name:name,
         image:imagePath,
