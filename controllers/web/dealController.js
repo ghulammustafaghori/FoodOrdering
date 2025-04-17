@@ -57,14 +57,36 @@ let insertDeal=async(req,res)=>{
     }
 }
 
-let updateDeal = async (req, res) => {
+const updateDeal = async (req, res) => {
     try {
-        let { id } = req.params;
-        let { name, image, price } = req.body;
+        const { id } = req.params;
 
-        let result = await dealModel.updateOne(
+        // Validate ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.send({
+                status: 0,
+                message: "Invalid deal ID"
+            });
+        }
+
+        // Build update object dynamically
+        const updateFields = {};
+        const { name, image, price } = req.body;
+
+        if (name) updateFields.name = name;
+        if (image) updateFields.image = image;
+        if (price) updateFields.price = price;
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.send({
+                status: 0,
+                message: "No valid fields provided for update"
+            });
+        }
+
+        const result = await dealModel.updateOne(
             { _id: id },
-            { $set: { name, image, price } }
+            { $set: updateFields }
         );
 
         if (!result.acknowledged) {
@@ -86,7 +108,7 @@ let updateDeal = async (req, res) => {
         if (result.modifiedCount === 0) {
             return res.send({
                 status: 0,
-                message: "No changes made to the deal (data may be same)",
+                message: "No changes made to the deal (data may be the same)",
                 data: result
             });
         }
