@@ -2,6 +2,7 @@ const dealModel=require('../../models/deal.model');
 const fs = require('fs');
 const multer = require('multer');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 
 let readDeal=async(req,res)=>{
