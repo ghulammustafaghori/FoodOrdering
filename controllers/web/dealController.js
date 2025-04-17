@@ -2,7 +2,6 @@ const dealModel=require('../../models/deal.model');
 const fs = require('fs');
 const multer = require('multer');
 const axios = require('axios');
-const mongoose = require('mongoose');
 
 
 let readDeal=async(req,res)=>{
@@ -58,77 +57,20 @@ let insertDeal=async(req,res)=>{
     }
 }
 
-const updateDeal = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Validate ID format
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.send({
-                status: 0,
-                message: "Invalid deal ID"
-            });
-        }
-
-        // Build update object dynamically
-        const updateFields = {};
-        const { name, image, price } = req.body;
-
-        if (name) updateFields.name = name;
-        if (image) updateFields.image = image;
-        if (price) updateFields.price = price;
-
-        if (Object.keys(updateFields).length === 0) {
-            return res.send({
-                status: 0,
-                message: "No valid fields provided for update"
-            });
-        }
-
-        const result = await dealModel.updateOne(
-            { _id: id },
-            { $set: updateFields }
-        );
-
-        if (!result.acknowledged) {
-            return res.send({
-                status: 0,
-                message: "Update not acknowledged by database",
-                data: result
-            });
-        }
-
-        if (result.matchedCount === 0) {
-            return res.send({
-                status: 0,
-                message: "No deal found with the given ID",
-                data: result
-            });
-        }
-
-        if (result.modifiedCount === 0) {
-            return res.send({
-                status: 0,
-                message: "No changes made to the deal (data may be the same)",
-                data: result
-            });
-        }
-
-        res.send({
-            status: 1,
-            message: "Deal updated successfully",
-            data: result
-        });
-
-    } catch (error) {
-        res.send({
-            status: 0,
-            message: "Error updating deal",
-            error: error.message
-        });
-    }
-};
-
+let updateDeal=async(req,res)=>{
+    let {id}=req.params;
+    let {name,image,price}=req.body;
+    let deal=await dealModel.updateOne({_id:id},{
+        name:name,
+        image:image,
+        price:price
+    })
+    res.send({
+        status:1,
+        message:"Deal updated successfully",
+        data:deal
+    })
+}
 
 let deleteDeal=async(req,res)=>{
     let {id}=req.params;
