@@ -2,7 +2,7 @@ const orderModel = require("../../models/order.model");
 const userModel = require("../../models/user.model");
 const restaurantModel = require("../../models/restaurant.model");
 let orderList = async (req, res) => {
-  const orders = await orderModel.find().populate("userId").populate("restaurantId");
+  const orders = await orderModel.find().populate("userId").populate("restaurantId").populate("items.menuItemId");
   res.send({
     status: 1,
     message: "Orders fetched successfully",
@@ -22,7 +22,7 @@ let insertOrder = async (req, res) => {
       await User.findByIdAndUpdate(userId, { $inc: { totalOrders: 1 } });
 
       // 3️⃣ Increment total orders for restaurant
-      await Restaurant.findByIdAndUpdate(restaurantId, { $inc: { totalOrders: 1 } });
+      await Restaurant.findByIdAndUpdate(restaurantId, { $inc: { totalOrders: 1,totalSales: totalPrice } });
       // 4️⃣ increase the total sales of restaurant
     //   await Restaurant.findByIdAndUpdate(restaurantId, { $inc: { totalSales: totalPrice } });
   
