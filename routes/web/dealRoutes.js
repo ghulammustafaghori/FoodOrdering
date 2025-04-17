@@ -3,6 +3,6 @@ const express=require('express');
 const dealRoutes=express.Router();
 dealRoutes.get('/deal-list',readDeal);
 dealRoutes.post('/insert-deal',fileUpload,insertDeal);
-dealRoutes.put('/update-deal/:id',updateDeal);
+dealRoutes.put('/update-deal/:id',fileUpload,updateDeal);
 dealRoutes.delete('/delete-deal/:id',deleteDeal);
 module.exports=dealRoutes;
