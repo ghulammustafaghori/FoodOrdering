@@ -30,7 +30,8 @@ mongoose.connect(process.env.DB_URL,{
 
 
 app.use(cors({
-    origin: "http://localhost:3000", // Allow frontend to access API
+    origin: ["http://localhost:3000",
+    "https://zygomorphic-marcille-foodordering-b159eacd.koyeb.app" ],// Allow frontend to access API
     methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
     credentials: true
 }));
