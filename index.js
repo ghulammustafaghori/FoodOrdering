@@ -37,6 +37,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// This middleware will allow the OPTIONS method for preflight requests
+app.options('*', cors());
+
 
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
