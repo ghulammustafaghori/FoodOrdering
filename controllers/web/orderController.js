@@ -8,6 +8,7 @@ let orderList = async (req, res) => {
     message: "Orders fetched successfully",
     data: orders,
   });
+  //  console.log(orders);
 };
 let insertOrder = async (req, res) => {
   let { userId, restaurantId, items, totalPrice } = req.body;
