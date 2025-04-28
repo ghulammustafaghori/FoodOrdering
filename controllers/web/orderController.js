@@ -11,7 +11,7 @@ let orderList = async (req, res) => {
   //  console.log(orders);
 };
 let insertOrder = async (req, res) => {
-  let { userId, restaurantId, items, totalPrice } = req.body;
+  let { userId, restaurantId, items, totalPrice } = req.body; // Assuming userId, restaurantId, items, and totalPrice are sent in the request body
   
   // Create a new order
   let order = new orderModel({
