@@ -4,7 +4,7 @@ const orderSchema = new mongoose.Schema({
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
     items: [
       {
-        menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "Menu" },
+        menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "menu" },
         quantity: Number,
         price: Number
       }

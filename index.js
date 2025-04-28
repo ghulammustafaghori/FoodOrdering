@@ -33,8 +33,21 @@ app.use(cors({
     origin: ["http://localhost:3000",
     "https://zygomorphic-marcille-foodordering-b159eacd.koyeb.app" ],// Allow frontend to access API
     methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
-    credentials: true
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Explicit OPTIONS handler
+app.options('*', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.status(204).send();
+  });
+
 app.use(express.json());
 
 // This middleware will allow the OPTIONS method for preflight requests
@@ -44,6 +57,14 @@ app.options('*', cors());
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
+// Add timeout middleware (place this before your routes)
+app.use((req, res, next) => {
+    req.setTimeout(10000, () => {
+      res.status(504).json({ status: 0, message: 'Request timeout' });
+    });
+    next();
+  });
 
 
 app.use('/web/api/users',userRoutes);
@@ -58,6 +79,16 @@ app.use('/web/api/checkout',orderRoutes);
 app.use('/web/api/admin',adminRoutes);
 app.use('/web/api/pendingRiders',pendingRiderRoutes);
 
+
+// Error handling middleware (add this after all routes)
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+      status: 0,
+      message: 'Internal Server Error',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  });
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running on port ${process.env.PORT}`);
