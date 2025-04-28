@@ -1,7 +1,7 @@
 const mongoose=require('mongoose');
 const orderSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "restaurant" },
     items: [
       {
         menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "menu" },
