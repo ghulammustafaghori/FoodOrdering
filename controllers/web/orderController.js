@@ -10,35 +10,60 @@ let orderList = async (req, res) => {
   });
   //  console.log(orders);
 };
-let insertOrder = async (req, res) => {
-  let { userId, restaurantId, items, totalPrice } = req.body; // Assuming userId, restaurantId, items, and totalPrice are sent in the request body
-  
-  // Create a new order
-  let order = new orderModel({
-    userId,
-    restaurantId,
-    items,
-    totalPrice,
-  });
+const insertOrder = async (req, res) => {
+  try {
+    const { userId, restaurantId, items, totalPrice } = req.body;
 
-  // Save the order
-  await order.save();
+    // Fetch user data
+    const user = await userModel.findById(userId);
+    if (!user || !user.address) {
+      return res.status(404).json({ status: 0, message: "User or address not found" });
+    }
 
-  // Increment total orders for the user
-  // await userModel.findByIdAndUpdate(userId, { $inc: { orders: 1 } });
+    // Fetch restaurant data
+    const restaurant = await restaurantModel.findById(restaurantId);
+    if (!restaurant || !restaurant.address) {
+      return res.status(404).json({ status: 0, message: "Restaurant or address not found" });
+    }
 
-  // Increment total orders and sales for the restaurant
-  // await restaurantModel.findByIdAndUpdate(restaurantId, { $inc: { orders: 1, totalSales: totalPrice } });
+    // Prepare order data
+    const orderData = {
+      userId,
+      restaurantId,
+      items,
+      totalPrice,
+      userAddress: {
+        text: user.address.text,
+        latitude: user.address.latitude,
+        longitude: user.address.longitude
+      },
+      restaurantAddress: {
+        text: restaurant.address.text,
+        latitude: restaurant.address.latitude,
+        longitude: restaurant.address.longitude
+      }
+    };
 
-  // Populate item details like name, itemId, etc.
-  const populatedOrder = await orderModel.findById(order._id)
-    .populate('items.menuItemId'); // Assuming items are populated based on itemId
+    // Save the order
+    const order = new orderModel(orderData);
+    await order.save();
 
-  res.send({
-    status: 1,
-    message: "Order inserted successfully",
-    data: populatedOrder,
-  });
+    // Optionally update user/restaurant stats here...
+
+    // Populate menu items
+    const populatedOrder = await orderModel.findById(order._id)
+      .populate('items.menuItemId');
+
+    res.send({
+      status: 1,
+      message: "Order inserted successfully",
+      data: populatedOrder,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 0, message: "Something went wrong" });
+  }
 };
+
 
 module.exports = { orderList, insertOrder };
