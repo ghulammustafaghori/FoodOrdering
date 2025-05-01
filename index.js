@@ -4,7 +4,14 @@ const app=express();
 const {createServer} = require('http');
 const server = createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+      origin: ["http://localhost:3000", "https://zygomorphic-marcille-foodordering-b159eacd.koyeb.app"],
+      methods: ["GET", "POST"],
+      credentials: true
+  }
+});
+
 // const axios = require('axios');
 // const session = require("express-session");
 // const MongoStore = require("connect-mongo");
