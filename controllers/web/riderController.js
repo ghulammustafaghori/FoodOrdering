@@ -1,5 +1,8 @@
 const riderModel=require('../../models/rider.model')
 const axios = require('axios');
+
+
+
 let riderList=async (req,res)=>{
     let rider=await riderModel.find();
     res.send({
@@ -55,6 +58,11 @@ let insertRider = async (req, res) => {
                 latitude: latitude,
                 longitude: longitude
             },
+            live_location: {  // Add live location with default null values
+                latitude: latitude || null,
+                longitude: longitude || null,
+                last_updated: null
+            },
             joining_date: new Date().toISOString().split('T')[0]
         });
 
@@ -76,6 +84,7 @@ let insertRider = async (req, res) => {
         });
     }
 };
+
 
 
 
@@ -176,5 +185,55 @@ let deleteRider=async(req,res)=>{
 }
 
 
+let updateRiderLocation = async (req, res) => {
+    let { id } = req.params;
+    let { latitude, longitude } = req.body;
 
-module.exports={riderList,insertRider,updateRider,deleteRider}
+    try {
+        // 1️⃣ Check if latitude and longitude are provided
+        if (!latitude || !longitude) {
+            return res.status(400).send({
+                status: 0,
+                message: "Latitude and Longitude are required"
+            });
+        }
+
+        // 2️⃣ Update the rider's live location
+        let updatedRider = await riderModel.findByIdAndUpdate(id, {
+            live_location: {
+                latitude,
+                longitude,
+                last_updated: Date.now()
+            }
+        }, { new: true });
+
+        // 3️⃣ If rider not found, return error
+        if (!updatedRider) {
+            return res.status(404).send({
+                status: 0,
+                message: "Rider not found"
+            });
+        }
+
+        // 4️⃣ Send response
+        res.send({
+            status: 1,
+            message: "Rider's live location updated successfully",
+            data: updatedRider
+        });
+    } catch (error) {
+        console.error("Error updating rider location:", error.message);
+        console.error("Stack trace:", error.stack); // This gives detailed error info
+
+        res.status(500).send({
+            status: 0,
+            message: "Internal server error",
+            error: error.message, // Send error message in response
+        });
+    }
+};
+
+
+
+
+module.exports={riderList,insertRider,updateRider,deleteRider,updateRiderLocation}

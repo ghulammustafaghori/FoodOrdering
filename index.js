@@ -1,6 +1,10 @@
 require('dotenv').config();
 const express= require('express');
 const app=express();
+const {createServer} = require('http');
+const server = createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 // const axios = require('axios');
 // const session = require("express-session");
 // const MongoStore = require("connect-mongo");
@@ -90,6 +94,32 @@ app.use((err, req, res, next) => {
     });
   });
 
-app.listen(process.env.PORT,()=>{
+  const riderModel = require("./models/rider.model"); // adjust path
+
+io.on("connection", (socket) => {
+    console.log("🟢 Rider connected:", socket.id);
+
+    socket.on("locationUpdate", async ({ riderId, latitude, longitude }) => {
+        try {
+            await riderModel.findByIdAndUpdate(riderId, {
+                live_location: {
+                    latitude,
+                    longitude,
+                    last_updated: new Date()
+                }
+            });
+            console.log(`📍 Updated location for rider ${riderId}`);
+        } catch (err) {
+            console.error("❌ Error updating rider location:", err.message);
+        }
+    });
+
+    socket.on("disconnect", () => {
+        console.log("🔴 Rider disconnected:", socket.id);
+    });
+});
+
+
+server.listen(process.env.PORT,()=>{
     console.log(`Server is running on port ${process.env.PORT}`);
 })
