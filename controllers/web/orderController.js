@@ -32,7 +32,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   return R * c; // Distance in kilometers
 };
 
-let insertOrder = async (req, res) => {
+
   let insertOrder = async (req, res) => {
     console.log("🔥 insertOrder hit!");
   }
@@ -123,7 +123,7 @@ let insertOrder = async (req, res) => {
     console.error(err);
     res.status(500).json({ status: 0, message: "Something went wrong" });
   }
-};
+
 
 
 
