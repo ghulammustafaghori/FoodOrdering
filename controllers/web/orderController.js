@@ -72,6 +72,8 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
           rider.live_location.longitude
         );
 
+        console.log(`Rider ID: ${rider._id}, Distance: ${distance} km`);
+
         if (distance < shortestDistance) {
           shortestDistance = distance;
           nearestRider = rider;
