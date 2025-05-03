@@ -129,10 +129,4 @@ let insertOrder = async (req, res) => {
   }
 };
 
-module.exports = { insertOrder };
-
-
-
-
-
 module.exports = { orderList, insertOrder };
