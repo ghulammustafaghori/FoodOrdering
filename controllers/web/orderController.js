@@ -35,7 +35,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
   let insertOrder = async (req, res) => {
     console.log("🔥 insertOrder hit!");
-  }
+  
   
   try {
     const { userId, restaurantId, items, totalPrice } = req.body;
@@ -122,7 +122,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: 0, message: "Something went wrong" });
-  }
+  }}
 
 
 
