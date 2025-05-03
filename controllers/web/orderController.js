@@ -16,8 +16,6 @@ let orderList = async (req, res) => {
   });
   //  console.log(orders);
 };
-
-
 // Haversine formula to calculate distance between two coordinates
 const haversineDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371; // Earth's radius in kilometers
@@ -32,11 +30,9 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   return R * c; // Distance in kilometers
 };
 
+let insertOrder = async (req, res) => {
+  console.log("🔥 insertOrder hit!");
 
-  let insertOrder = async (req, res) => {
-    console.log("🔥 insertOrder hit!");
-  
-  
   try {
     const { userId, restaurantId, items, totalPrice } = req.body;
 
@@ -64,7 +60,8 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
     // Loop through each rider and calculate the distance to the restaurant
     for (let rider of riders) {
-      if (rider.live_location.latitude && rider.live_location.longitude) {
+      // Check if rider has live location data
+      if (rider.live_location && rider.live_location.latitude && rider.live_location.longitude) {
         const distance = haversineDistance(
           restaurant.address.latitude,
           restaurant.address.longitude,
@@ -78,6 +75,8 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
           shortestDistance = distance;
           nearestRider = rider;
         }
+      } else {
+        console.log(`Rider ID: ${rider._id} does not have valid live location data.`);
       }
     }
 
@@ -105,6 +104,9 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
       riderId: nearestRider._id, // Assign the nearest rider
     };
 
+    // Log the order data before saving it
+    console.log('Order Data:', orderData);
+
     // Save the order
     const order = new orderModel(orderData);
     await order.save();
@@ -124,7 +126,11 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: 0, message: "Something went wrong" });
-  }}
+  }
+};
+
+module.exports = { insertOrder };
+
 
 
 
