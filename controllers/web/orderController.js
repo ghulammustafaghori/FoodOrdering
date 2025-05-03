@@ -33,6 +33,10 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 let insertOrder = async (req, res) => {
+  let insertOrder = async (req, res) => {
+    console.log("🔥 insertOrder hit!");
+  }
+  
   try {
     const { userId, restaurantId, items, totalPrice } = req.body;
 
