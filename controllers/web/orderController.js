@@ -51,7 +51,11 @@ let insertOrder = async (req, res) => {
     }
 
     // Fetch available riders
-    const riders = await riderModel.find({ availability: 'available' });
+    const riders = await riderModel.find({
+      availability: 'available',
+      'live_location.latitude': { $ne: null },
+      'live_location.longitude': { $ne: null }
+    });
 
     if (!riders || riders.length === 0) {
       return res.status(404).json({ status: 0, message: "No available riders found" });
