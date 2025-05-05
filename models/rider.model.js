@@ -60,8 +60,8 @@ let riderSchema = new mongoose.Schema({
   },
   // Add live location fields
   live_location: {
-    latitude: { type: Number, required: true }, // Store live latitude
-    longitude: { type: Number, required: true }, // Store live longitude
+    latitude: { type: Number }, // Store live latitude
+    longitude: { type: Number }, // Store live longitude
     last_updated: { type: Date, default: Date.now } // Timestamp for when location was last updated
   }
 });

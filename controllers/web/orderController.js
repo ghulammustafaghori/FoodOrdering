@@ -29,9 +29,11 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in kilometers
 };
+console.log("📦 orderController.js LOADED");
+
 
 let insertOrder = async (req, res) => {
-  console.log("🔥 insertOrder hit!");
+
 
   try {
     const { userId, restaurantId, items, totalPrice } = req.body;
