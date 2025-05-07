@@ -137,7 +137,9 @@ let insertOrder = async (req, res) => {
       .populate('riderId');
 
       // Send SMS after order is saved
-    const phone = user.phone.startsWith("255") ? user.phone : `255${user.phone.slice(-9)}`;
+      const rawPhone = String(user.phone || "").replace(/\D/g, ""); // convert to string and strip non-digits
+const phone = rawPhone.startsWith("255") ? rawPhone : `255${rawPhone.slice(-9)}`;
+
     const message = `Dear ${user.name || "Customer"}, your order has been successfully placed. Thank you for choosing us!`;
 
     console.log("⚡ Sending SMS to:", phone, "with message:", message);
