@@ -103,11 +103,54 @@ app.use((err, req, res, next) => {
 
   const riderModel = require("./models/rider.model"); // adjust path
 
-io.on("connection", (socket) => {
-    console.log("🟢 Rider connected:", socket.id);
+// Add this to your existing server.js
 
+// Track connected riders
+const connectedRiders = new Set();
+
+io.on("connection", (socket) => {
+    console.log("🟢 Client connected:", socket.id);
+
+    // Handle rider joining their tracking room
+    socket.on("joinRiderRoom", async (riderId) => {
+        try {
+            // Verify rider exists
+            const rider = await riderModel.findById(riderId);
+            if (!rider) {
+                throw new Error("Rider not found");
+            }
+
+            // Join rider-specific room
+            socket.join(`rider_${riderId}`);
+            connectedRiders.add(riderId);
+            console.log(`🚴 Rider ${riderId} joined room rider_${riderId}`);
+
+            // Send verification to client
+            socket.emit("roomVerification", {
+                status: "success",
+                riderId,
+                message: `Joined rider room for ${riderId}`
+            });
+
+        } catch (err) {
+            console.error("❌ Error joining rider room:", err.message);
+            socket.emit("roomVerification", {
+                status: "error",
+                message: err.message
+            });
+        }
+    });
+
+    // Handle location updates from rider app
     socket.on("locationUpdate", async ({ riderId, latitude, longitude }) => {
         try {
+            // Validate coordinates
+            if (typeof latitude !== "number" || typeof longitude !== "number" ||
+                latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+                throw new Error("Invalid coordinates");
+            }
+
+            // Update in database
             await riderModel.findByIdAndUpdate(riderId, {
                 live_location: {
                     latitude,
@@ -115,14 +158,34 @@ io.on("connection", (socket) => {
                     last_updated: new Date()
                 }
             });
-            console.log(`📍 Updated location for rider ${riderId}`);
+
+            console.log(`📍 Updated location for rider ${riderId}`, { latitude, longitude });
+
+            // Broadcast ONLY to clients in this rider's room
+            io.to(`rider_${riderId}`).emit("locationUpdate", {
+                riderId,
+                latitude,
+                longitude,
+                timestamp: new Date().toISOString()
+            });
+
+            socket.emit("locationUpdateStatus", { 
+                status: "success",
+                message: "Location updated and broadcasted"
+            });
+
         } catch (err) {
-            console.error("❌ Error updating rider location:", err.message);
+            console.error("❌ Error updating location:", err.message);
+            socket.emit("locationUpdateStatus", { 
+                status: "error",
+                message: err.message
+            });
         }
     });
 
     socket.on("disconnect", () => {
-        console.log("🔴 Rider disconnected:", socket.id);
+        console.log("🔴 Client disconnected:", socket.id);
+        // Clean up any rider tracking if needed
     });
 });
 

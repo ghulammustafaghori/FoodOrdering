@@ -1,4 +1,6 @@
 const restaurantModel = require('../../models/restaurant.model');
+const menuModel = require('../../models/menu.model');
+const dealModel = require('../../models/deal.model');
 const axios = require('axios');
 const multer = require('multer');
 const fs = require('fs');
@@ -198,15 +200,36 @@ let restaurantUpdate = async (req, res) => {
 
 
 
-let restaurantDelete=async(req,res)=>{
-    let {id}=req.params;
-    const restaurant=await restaurantModel.deleteOne({_id:id})
-    res.send({
-        status:1,
-        message:"Restaurant deleted successfully",
-        data:restaurant
-    })
-}
+let restaurantDelete = async (req, res) => {
+    try {
+        let { id } = req.params;
+
+        // Delete the restaurant
+        const restaurant = await restaurantModel.deleteOne({ _id: id });
+
+        // Delete all menus related to the restaurant
+        const deletedMenus = await menuModel.deleteMany({ restaurantId: id });
+
+        // Delete all deals related to the restaurant
+        const deletedDeals = await dealModel.deleteMany({ restaurantId: id });
+
+        res.send({
+            status: 1,
+            message: "Restaurant, menus, and deals deleted successfully",
+            data: {
+                restaurant,
+                deletedMenusCount: deletedMenus.deletedCount,
+                deletedDealsCount: deletedDeals.deletedCount,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            status: 0,
+            message: "Error deleting restaurant and related data",
+        });
+    }
+};
 
 
 

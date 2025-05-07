@@ -16,6 +16,12 @@ let orderList = async (req, res) => {
   });
   //  console.log(orders);
 };
+
+
+
+
+
+
 // Haversine formula to calculate distance between two coordinates
 const haversineDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371; // Earth's radius in kilometers
@@ -29,12 +35,10 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in kilometers
 };
+
 console.log("📦 orderController.js LOADED");
 
-
 let insertOrder = async (req, res) => {
-
-
   try {
     const { userId, restaurantId, items, totalPrice } = req.body;
 
@@ -46,9 +50,14 @@ let insertOrder = async (req, res) => {
 
     // Fetch restaurant data
     const restaurant = await restaurantModel.findById(restaurantId);
-    if (!restaurant || !restaurant.address) {
-      return res.status(404).json({ status: 0, message: "Restaurant or address not found" });
+    console.log('Restaurant Data:', restaurant);
+
+    if (!restaurant || !restaurant.address || !restaurant.location || !restaurant.location.coordinates) {
+      return res.status(404).json({ status: 0, message: "Restaurant or location data missing" });
     }
+
+    const [restaurantLng, restaurantLat] = restaurant.location.coordinates;
+    console.log(`Restaurant Lat/Lng: ${restaurantLat}, ${restaurantLng}`);
 
     // Fetch available riders
     const riders = await riderModel.find({
@@ -61,16 +70,20 @@ let insertOrder = async (req, res) => {
       return res.status(404).json({ status: 0, message: "No available riders found" });
     }
 
+    // Loop through each rider and calculate the distance to the restaurant
     let nearestRider = null;
     let shortestDistance = Infinity;
 
-    // Loop through each rider and calculate the distance to the restaurant
     for (let rider of riders) {
-      // Check if rider has live location data
-      if (rider.live_location && rider.live_location.latitude && rider.live_location.longitude) {
+      console.log("Live Location Type Check:");
+      console.log("Latitude:", rider.live_location.latitude, typeof rider.live_location.latitude);
+      console.log("Longitude:", rider.live_location.longitude, typeof rider.live_location.longitude);
+
+      // Check if rider has valid live location
+      if (rider.live_location?.latitude && rider.live_location?.longitude) {
         const distance = haversineDistance(
-          restaurant.address.latitude,
-          restaurant.address.longitude,
+          restaurantLat,
+          restaurantLng,
           rider.live_location.latitude,
           rider.live_location.longitude
         );
@@ -104,10 +117,10 @@ let insertOrder = async (req, res) => {
       },
       restaurantAddress: {
         text: restaurant.address.text,
-        latitude: restaurant.address.latitude,
-        longitude: restaurant.address.longitude
+        latitude: restaurantLat,
+        longitude: restaurantLng
       },
-      riderId: nearestRider._id, // Assign the nearest rider
+      riderId: nearestRider._id,
     };
 
     // Log the order data before saving it
@@ -117,12 +130,10 @@ let insertOrder = async (req, res) => {
     const order = new orderModel(orderData);
     await order.save();
 
-    // Optionally update rider stats here...
-
     // Populate menu items and rider data
     const populatedOrder = await orderModel.findById(order._id)
       .populate('items.menuItemId')
-      .populate('riderId'); // Populate rider details
+      .populate('riderId');
 
     res.send({
       status: 1,
@@ -134,5 +145,7 @@ let insertOrder = async (req, res) => {
     res.status(500).json({ status: 0, message: "Something went wrong" });
   }
 };
+
+
 
 module.exports = { orderList, insertOrder };

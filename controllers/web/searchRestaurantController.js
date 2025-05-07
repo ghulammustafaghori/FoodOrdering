@@ -1,34 +1,35 @@
 const restaurantModel = require('../../models/restaurant.model');
-const userModel = require('../../models/user.model');
 
 const searchRestaurant = async (req, res) => {
     try {
-        let searchValue = req.params.value;
-        let userId = req.params.userId; // Assuming user ID is passed
+        const { latitude, longitude } = req.params;
 
-        // Fetch user location
-        const user = await userModel.findById(userId);
-        if (!user || !user.address || !user.address.latitude || !user.address.longitude) {
-            return res.status(404).json({ message: "User location not found" });
+        if (!latitude || !longitude) {
+            return res.status(400).json({ message: "Latitude and longitude are required" });
         }
 
-        let { latitude, longitude } = user.address; // Get user coordinates
+        // Convert to numbers (important!)
+        const lat = parseFloat(latitude);
+        const lng = parseFloat(longitude);
 
-        // ✅ Find nearby restaurants within 10km (10,000 meters)
-        let result = await restaurantModel.find({
-            name: { $regex: searchValue, $options: "i" },
+        if (isNaN(lat) || isNaN(lng)) {
+            return res.status(400).json({ message: "Invalid coordinates" });
+        }
+
+        // Find restaurants within 10km
+        const result = await restaurantModel.find({
             location: {
                 $near: {
                     $geometry: {
                         type: "Point",
-                        coordinates: [longitude, latitude]
+                        coordinates: [lng, lat]
                     },
-                    $maxDistance: 10000 // 10 km in meters
+                    $maxDistance: 10000 // 10 km
                 }
             }
         });
 
-        res.send(result);
+        res.json(result);
     } catch (error) {
         console.error("Error searching for restaurants:", error);
         return res.status(500).json({ message: "Internal server error" });
