@@ -2,6 +2,7 @@ const orderModel = require("../../models/order.model");
 const userModel = require("../../models/user.model");
 const restaurantModel = require("../../models/restaurant.model");
 const riderModel = require("../../models/rider.model");
+const sendSMS=require('../../helper/smsService');
 
 
 
@@ -135,15 +136,34 @@ let insertOrder = async (req, res) => {
       .populate('items.menuItemId')
       .populate('riderId');
 
+      // Send SMS after order is saved
+    const phone = user.phone.startsWith("255") ? user.phone : `255${user.phone.slice(-9)}`;
+    const message = `Dear ${user.name || "Customer"}, your order has been successfully placed. Thank you for choosing us!`;
+
+    console.log("⚡ Sending SMS to:", phone, "with message:", message);
+
+    const smsResult = await sendSMS({ to: phone, text: message });
+
+    console.log("📤 SMS result:", smsResult);
+
+
+    if (smsResult.success) {
+      console.log("SMS sent:", smsResult.data);
+    } else {
+      console.error("SMS failed:", smsResult.error);
+    }
+
     res.send({
       status: 1,
-      message: "Order inserted successfully",
+      message: "Order placed and SMS sent successfully",
       data: populatedOrder,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: 0, message: "Something went wrong" });
   }
+
+  
 };
 
 
