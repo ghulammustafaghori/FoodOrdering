@@ -6,7 +6,7 @@ const server = createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-      origin: ["http://localhost:3000", "https://zygomorphic-marcille-foodordering-b159eacd.koyeb.app"],
+      origin: ["http://localhost:3000", "https://qzatmsost.vercel.app"],
       methods: ["GET", "POST"],
       credentials: true
   }
