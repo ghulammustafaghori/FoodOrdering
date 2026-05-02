@@ -5,11 +5,10 @@ const {createServer} = require('http');
 const server = createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
-  cors: {
-      origin: ["http://localhost:3000", "https://qzatmsost.vercel.app"],
-      methods: ["GET", "POST"],
-      credentials: true
-  }
+  app.use(cors({
+  origin: "https://qzatmsost.vercel.app",
+  credentials: true
+}));
 });
 
 // const axios = require('axios');
@@ -41,13 +40,8 @@ mongoose.connect(process.env.DB_URL,{
 
 
 app.use(cors({
-    origin: ["http://localhost:3000",
-    "https://zygomorphic-marcille-foodordering-b159eacd.koyeb.app" ],// Allow frontend to access API
-    methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    preflightContinue: false,
-  optionsSuccessStatus: 204
+  origin: "https://qzatmsost.vercel.app",
+  credentials: true
 }));
 
 // Explicit OPTIONS handler
@@ -62,7 +56,7 @@ app.options('*', (req, res) => {
 app.use(express.json());
 
 // This middleware will allow the OPTIONS method for preflight requests
-app.options('*', cors());
+
 
 
 const path = require('path');

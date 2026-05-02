@@ -3,6 +3,8 @@ const userModel = require("../../models/user.model");
 const restaurantModel = require("../../models/restaurant.model");
 const riderModel = require("../../models/rider.model");
 const sendSMS=require('../../helper/smsService');
+const qzatPushPayment = require('../../helper/payment');
+
 
 
 
@@ -39,28 +41,27 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
 console.log("📦 orderController.js LOADED");
 
+
+
 let insertOrder = async (req, res) => {
   try {
     const { userId, restaurantId, items, totalPrice } = req.body;
 
-    // Fetch user data
+    // 1. Fetch user
     const user = await userModel.findById(userId);
     if (!user || !user.address) {
       return res.status(404).json({ status: 0, message: "User or address not found" });
     }
 
-    // Fetch restaurant data
+    // 2. Fetch restaurant
     const restaurant = await restaurantModel.findById(restaurantId);
-    console.log('Restaurant Data:', restaurant);
-
     if (!restaurant || !restaurant.address || !restaurant.location || !restaurant.location.coordinates) {
       return res.status(404).json({ status: 0, message: "Restaurant or location data missing" });
     }
 
     const [restaurantLng, restaurantLat] = restaurant.location.coordinates;
-    console.log(`Restaurant Lat/Lng: ${restaurantLat}, ${restaurantLng}`);
 
-    // Fetch available riders
+    // 3. Fetch available riders
     const riders = await riderModel.find({
       availability: 'available',
       'live_location.latitude': { $ne: null },
@@ -71,16 +72,11 @@ let insertOrder = async (req, res) => {
       return res.status(404).json({ status: 0, message: "No available riders found" });
     }
 
-    // Loop through each rider and calculate the distance to the restaurant
+    // 4. Find nearest rider
     let nearestRider = null;
     let shortestDistance = Infinity;
 
     for (let rider of riders) {
-      console.log("Live Location Type Check:");
-      console.log("Latitude:", rider.live_location.latitude, typeof rider.live_location.latitude);
-      console.log("Longitude:", rider.live_location.longitude, typeof rider.live_location.longitude);
-
-      // Check if rider has valid live location
       if (rider.live_location?.latitude && rider.live_location?.longitude) {
         const distance = haversineDistance(
           restaurantLat,
@@ -88,24 +84,18 @@ let insertOrder = async (req, res) => {
           rider.live_location.latitude,
           rider.live_location.longitude
         );
-
-        console.log(`Rider ID: ${rider._id}, Distance: ${distance} km`);
-
         if (distance < shortestDistance) {
           shortestDistance = distance;
           nearestRider = rider;
         }
-      } else {
-        console.log(`Rider ID: ${rider._id} does not have valid live location data.`);
       }
     }
 
-    // If no rider was found, return an error
     if (!nearestRider) {
       return res.status(404).json({ status: 0, message: "No available riders with a live location found" });
     }
 
-    // Prepare order data
+    // 5. Prepare and save order
     const orderData = {
       userId,
       restaurantId,
@@ -124,49 +114,63 @@ let insertOrder = async (req, res) => {
       riderId: nearestRider._id,
     };
 
-    // Log the order data before saving it
-    console.log('Order Data:', orderData);
-
-    // Save the order
     const order = new orderModel(orderData);
     await order.save();
 
-    // Populate menu items and rider data
+    // 6. Populate order data
     const populatedOrder = await orderModel.findById(order._id)
       .populate('items.menuItemId')
       .populate('riderId');
 
-      // Send SMS after order is saved
-      const rawPhone = String(user.phone || "").replace(/\D/g, ""); // convert to string and strip non-digits
-const phone = rawPhone.startsWith("255") ? rawPhone : `255${rawPhone.slice(-9)}`;
+    // 7. Prepare phone number
+    const rawPhone = String(user.phone || "").replace(/\D/g, "");
+    const phone = rawPhone.startsWith("255") ? rawPhone : `255${rawPhone.slice(-9)}`;
 
+    // 8. Trigger Q-Zat Payment
+    const { paymentChannel } = req.body; // get it from frontend
+
+    const paymentResult = await qzatPushPayment({
+      channel: paymentChannel || "Tigo", // default to Tigo if nothing sent
+      phone_number: phone,
+      amount: totalPrice,
+      fname: user.name.split(" ")[0] || "Customer",
+      lname: user.name.split(" ")[1] || "",
+      payment_id: `pay_${Date.now()}_${user._id}`
+    });
+
+    console.log("💳 Q-Zat Payment Response:", paymentResult);
+
+    if (!paymentResult.success) {
+      console.error("❌ Payment failed:", paymentResult.error);
+      return res.status(500).json({
+        status: 0,
+        message: "Payment initiation failed",
+        error: paymentResult.error
+      });
+    }
+
+    // 9. Send SMS
     const message = `Dear ${user.name || "Customer"}, your order has been successfully placed. Thank you for choosing us!`;
-
-    console.log("⚡ Sending SMS to:", phone, "with message:", message);
-
     const smsResult = await sendSMS({ to: phone, text: message });
 
-    console.log("📤 SMS result:", smsResult);
-
-
-    if (smsResult.success) {
-      console.log("SMS sent:", smsResult.data);
-    } else {
+    if (!smsResult.success) {
       console.error("SMS failed:", smsResult.error);
     }
 
+    // 10. Final response
     res.send({
       status: 1,
-      message: "Order placed and SMS sent successfully",
+      message: "Order placed, payment initiated, and SMS sent",
       data: populatedOrder,
+      payment: paymentResult.data
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: 0, message: "Something went wrong" });
   }
-
-  
 };
+
 
 
 
