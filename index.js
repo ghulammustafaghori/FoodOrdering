@@ -5,10 +5,10 @@ const {createServer} = require('http');
 const server = createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
-  app.use(cors({
+  cors:({
   origin: "https://qzatmsost.vercel.app",
   credentials: true
-}));
+})
 });
 
 // const axios = require('axios');
